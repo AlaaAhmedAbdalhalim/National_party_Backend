@@ -41,7 +41,7 @@ app.use(express.json());
 
 // Routes
 const eventsRouter = require('./routers/eventsRoutes');
-app.use('/routers/eventsRoutes', eventsRoutes);
+app.use('/events', eventsRouter);
 
 // Start server
 const PORT = process.env.PORT || 3000;
