@@ -40,8 +40,8 @@ require('dotenv').config();
 app.use(express.json());
 
 // Routes
-const eventsRouter = require('./routes/events');
-app.use('/events', eventsRouter);
+const eventsRouter = require('./routers/eventsRoutes');
+app.use('/routers/eventsRoutes', eventsRoutes);
 
 // Start server
 const PORT = process.env.PORT || 3000;
