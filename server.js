@@ -2,8 +2,8 @@ require('dotenv').config();
 const express = require('express');
 const cloudinary = require("./config/cloudinary");
 const multer = require("multer");
-const sql = require("mssql");
 const dbConfig = require("./config/db");
+const mysql = require('mysql2/promise');
 const cors = require("cors");
 const app = express();
 // Routes

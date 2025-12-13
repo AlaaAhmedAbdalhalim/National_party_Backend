@@ -1,22 +1,20 @@
-const sql = require('mssql');
+// test-db.js
+require('dotenv').config(); // مهم جدًا عشان يقرأ المتغيرات من .env
+const pool = require('./config/db'); // هنا ملف db.js بتاعك
 
-const dbConfig = {
-  user: process.env.DB_USER,
-  password: process.env.DB_PASS,
-  server: process.env.DB_SERVER,
-  database: process.env.DB_NAME,
-  port: parseInt(process.env.DB_PORT || "1433", 10),
-  options: { encrypt: true, trustServerCertificate: true }
-};
+async function testConnection() {
+    try {
+        const connection = await pool.getConnection(); // نجيب كونكشن من البول
+        console.log('✅ Connected to the database successfully!');
 
-async function test() {
-  console.log('Trying to connect with server:', dbConfig.server);
-  try {
-    await sql.connect(dbConfig);
-    console.log('Connected to SQL Server!');
-  } catch (err) {
-    console.error('SQL Connection Error:', err);
-  }
+        // اختياري: نجرب استعلام صغير
+        const [rows] = await connection.query('SELECT 1 + 1 AS result');
+        console.log('Test query result:', rows[0].result); // لازم تطبع 2
+
+        connection.release(); // نفك الكونكشن من البول
+    } catch (err) {
+        console.error('❌ Connection failed:', err);
+    }
 }
 
-test();
+testConnection();
