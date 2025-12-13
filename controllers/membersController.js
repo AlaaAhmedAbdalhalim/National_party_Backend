@@ -1,4 +1,4 @@
-
+/* 
 const Members = require('../models/Members');
 
 exports.getAll = async (req, res) => {
@@ -18,3 +18,4 @@ exports.delete = async (req, res) => {
     res.json({ message: "Deleted" });
 };
 
+ */

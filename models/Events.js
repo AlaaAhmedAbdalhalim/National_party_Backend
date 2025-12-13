@@ -1,7 +1,7 @@
 
 const { DataTypes } = require('sequelize');
-const sequelize = require('../config/db');
-
+/* const sequelize = require('../config/db');
+ */
 const Events = sequelize.define('Events', {
     title: DataTypes.STRING,
     date: DataTypes.STRING,
