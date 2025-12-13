@@ -6,7 +6,7 @@ if (!process.env.DATABASE_URL) {
 
 const dbUrl = process.env.DATABASE_URL;
 const myURL = new URL(dbUrl); // WHATWG URL
-const [user, password] = myURL.username + ':' + myURL.password; // أو myURL.username & myURL.password
+
 const pool = mysql.createPool({
   host: myURL.hostname,
   user: myURL.username,
@@ -17,6 +17,5 @@ const pool = mysql.createPool({
   connectionLimit: 10,
   queueLimit: 0
 });
-
 
 module.exports = pool;
