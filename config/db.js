@@ -1,15 +1,17 @@
-const mysql = require("mysql2");
-require("dotenv").config();
+const mysql = require('mysql2/promise');
 
-const pool = mysql.createPool(process.env.DATABASE_URL);
-
-pool.getConnection((err, connection) => {
-  if (err) {
-    console.log("❌ DB Error:", err.message);
-  } else {
-    console.log("✅ DB Connected");
-    connection.release();
-  }
+const dbUrl = process.env.DATABASE_URL;
+const myURL = new URL(dbUrl); // WHATWG URL
+const [user, password] = myURL.username + ':' + myURL.password; // أو myURL.username & myURL.password
+const pool = mysql.createPool({
+  host: myURL.hostname,
+  user: myURL.username,
+  password: myURL.password,
+  database: myURL.pathname.slice(1), // يشيل '/'
+  port: Number(myURL.port),
+  waitForConnections: true,
+  connectionLimit: 10,
+  queueLimit: 0
 });
 
-module.exports = pool.promise();
+module.exports = pool;
