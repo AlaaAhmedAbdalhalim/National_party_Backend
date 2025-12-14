@@ -2,8 +2,8 @@ const mysql = require('mysql2/promise');
 
 let pool = null;
 
-if (process.env.MYSQL_PUBLIC_URL) {
-  const myURL = new URL(process.env.MYSQL_PUBLIC_URL);
+if (process.env.MYSQL_PRIVATE_URL) {
+  const myURL = new URL(process.env.MMYSQL_PRIVATE_URL);
 
   pool = mysql.createPool({
     host: myURL.hostname,
