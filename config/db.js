@@ -1,10 +1,10 @@
 const mysql = require('mysql2/promise');
 
-if (!process.env.DATABASE_URL) {
+if (!process.env.MYSQL_PUBLIC_URL) {
   throw new Error('DATABASE_URL is not defined');
 }
 
-const dbUrl = process.env.DATABASE_URL;
+const dbUrl = process.env.MYSQL_PUBLIC_URL;
 const myURL = new URL(dbUrl); // WHATWG URL
 
 const pool = mysql.createPool({
@@ -16,6 +16,6 @@ const pool = mysql.createPool({
   waitForConnections: true,
   connectionLimit: 10,
   queueLimit: 0
-});
+});     
 
 module.exports = pool;
