@@ -1,12 +1,9 @@
 const mysql = require('mysql2/promise');
 
-let pool;
+let pool = null;
 
-if (!process.env.MYSQL_PUBLIC_URL) {
-  console.warn("⚠️ MYSQL_PUBLIC_URL not found, DB disabled (local?)");
-} else {
-  const dbUrl = process.env.MYSQL_PUBLIC_URL;
-  const myURL = new URL(dbUrl);
+if (process.env.MYSQL_PUBLIC_URL) {
+  const myURL = new URL(process.env.MYSQL_PUBLIC_URL);
 
   pool = mysql.createPool({
     host: myURL.hostname,
@@ -15,10 +12,13 @@ if (!process.env.MYSQL_PUBLIC_URL) {
     database: myURL.pathname.slice(1),
     port: Number(myURL.port),
     waitForConnections: true,
-    connectionLimit: 10
+    connectionLimit: 10,
+    queueLimit: 0
   });
 
-  console.log("✅ MySQL pool ready");
+  console.log("✅ MySQL pool created");
+} else {
+  console.warn("⚠️ MYSQL_PUBLIC_URL not found, DB disabled");
 }
 
 module.exports = pool;

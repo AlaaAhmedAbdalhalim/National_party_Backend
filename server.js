@@ -16,19 +16,22 @@ const membersRouter = require('./routes/membersRoutes');
 // Middleware
 app.use(cors({ origin: '*' }));
 app.use(express.json());
-
-// ✅ Health check (مكانه الصح)
 app.get("/health", async (req, res) => {
   try {
-    if (!pool) return res.status(500).send("DB not ready");
+    if (!pool) {
+      return res.status(500).json({ status: "fail", reason: "no db pool" });
+    }
 
-    const conn = await pool.getConnection();
-    conn.release();
-    res.send("OK");
+    await pool.query("SELECT 1");
+    res.json({ status: "ok", db: "connected" });
   } catch (err) {
-    res.status(500).send("DB error");
+    res.status(500).json({
+      status: "fail",
+      error: err.message
+    });
   }
 });
+
 
 // API Routes
 app.use('/api/events', eventsRouter);
