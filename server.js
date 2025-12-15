@@ -8,6 +8,9 @@ console.log("ENV CHECK:", process.env.MYSQLHOST);
 
 // DB
 const pool = require("./config/db");
+app.get("/health", (req, res) => {
+  res.json({ status: "ok" });
+});
 
 // Routes
 const eventsRouter = require('./routes/eventsRoutes');
