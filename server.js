@@ -4,6 +4,7 @@ const cors = require('cors');
 const multer = require("multer");
 
 const app = express(); // ✅ لازم ييجي قبل أي app.get أو app.use
+console.log("ENV CHECK:", process.env.MYSQLHOST);
 
 // DB
 const pool = require("./config/db");
