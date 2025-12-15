@@ -17,6 +17,10 @@ const membersRouter = require('./routes/membersRoutes'); */
 // Middleware
 app.use(cors({ origin: '*' }));
 app.use(express.json());
+pool.query("SELECT 1")
+  .then(() => console.log("DB connected!"))
+  .catch(err => console.error("DB connection error:", err));
+
 app.get("/health", async (req, res) => {
   try {
     if (!pool) {
