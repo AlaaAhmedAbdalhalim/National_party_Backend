@@ -33,6 +33,15 @@ app.get("/health", async (req, res) => {
   }
 });
 
+app.get("/db-test", async (req, res) => {
+  try {
+    const [rows] = await pool.query("SELECT 1 AS test");
+    res.json(rows);
+  } catch (err) {
+    console.error("DB TEST ERROR:", err);
+    res.status(500).json({ error: err.message });
+  }
+});
 
 // API Routes
 app.use('/api/events', eventsRouter);
