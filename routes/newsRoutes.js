@@ -3,37 +3,44 @@ const router = express.Router();
 const db = require("../config/db");
 const cloudinary = require("../config/cloudinary");
 
-/* =======================
-   GET ALL NEWS
-======================= */
+// GET all events
 router.get("/", async (req, res) => {
   try {
     const [rows] = await db.query("SELECT * FROM News");
-    res.json(rows); // رجوع كل الأخبار
-  } catch (err) {
-    res.status(500).json(err);
+    res.status(200).json(rows);
+  } catch (error) {
+    console.error("GET News Error:", error);
+    res.status(500).json({ message: "Failed to fetch News" });
   }
 });
 
-/* =======================
-   ADD NEWS
-======================= */
+// POST new event
 router.post("/", async (req, res) => {
   try {
-    const { title, description, image, date } = req.body;
+    const { Title, Description, Image, Date } = req.body;
 
-    // رفع الصورة على Cloudinary
-    const uploadResult = await cloudinary.uploader.upload(image);
+    // Validation
+    if (!Title || !Description || !Image || !Date) {
+      return res.status(400).json({ message: "All fields are required" });
+    }
 
-    // حفظ البيانات في DB
+    // Upload image to Cloudinary
+    const upload = await cloudinary.uploader.upload(Image, {
+      folder: "news"
+    });
+
+    // Insert into DB
     await db.query(
-      "INSERT INTO News (Title, Description, Image, Date) VALUES (?, ?, ?, ?)",
-      [title, description, uploadResult.secure_url, date]
+      `INSERT INTO News 
+        (Title, Description, Image, Date)
+        VALUES (?, ?, ?, ?)`,
+      [Title, Description, upload.secure_url, Date]
     );
 
-    res.json({ message: "News added successfully" });
-  } catch (err) {
-    res.status(500).json(err);
+    res.status(201).json({ message: "News added successfully" });
+  } catch (error) {
+    console.error("POST News Error:", error); // هيطبع كل التفاصيل
+    res.status(500).json({ message: "Failed to add new" });
   }
 });
 
