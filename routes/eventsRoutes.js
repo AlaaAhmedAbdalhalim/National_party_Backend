@@ -33,7 +33,7 @@ router.post("/", async (req, res) => {
     await db.query(
       `INSERT INTO Events 
         (Title, Description, Image, Date ,Location)
-        VALUES (?, ?, ?, ?)`,
+        VALUES (?, ?, ?, ? , ?)`,
       [Title, Description, upload.secure_url, Date ,Location]
     );
 
