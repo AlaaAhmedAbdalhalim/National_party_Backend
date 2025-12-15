@@ -1,49 +1,45 @@
-require('dotenv').config(); 
+require('dotenv').config();
 const express = require('express');
-const cloudinary = require("./config/cloudinary");
+const cors = require('cors');
 const multer = require("multer");
-const dbConfig = require("./config/db");
+
+const app = express(); // ✅ لازم ييجي قبل أي app.get أو app.use
+
+// DB
 const pool = require("./config/db");
 
-(async () => {
-  try {
-    const conn = await pool.getConnection();
-    console.log("✅ MySQL connected successfully");
-    conn.release();
-  } catch (err) {
-    console.error("❌ MySQL connection failed:", err.message);
-  }
-})();
-
-const mysql = require('mysql2/promise');
-const cors = require("cors");
-const app = express();
 // Routes
 const eventsRouter = require('./routes/eventsRoutes');
 const newsRouter = require('./routes/newsRoutes');
 const membersRouter = require('./routes/membersRoutes');
 
 // Middleware
-app.use(cors({
-    origin:'*'
-}));
+app.use(cors({ origin: '*' }));
 app.use(express.json());
+app.get("/health", async (req, res) => {
+  try {
+    if (!pool) {
+      return res.status(500).json({ status: "fail", reason: "no db pool" });
+    }
+
+    await pool.query("SELECT 1");
+    res.json({ status: "ok", db: "connected" });
+  } catch (err) {
+    res.status(500).json({
+      status: "fail",
+      error: err.message
+    });
+  }
+});
 
 
+// API Routes
 app.use('/api/events', eventsRouter);
 app.use('/api/news', newsRouter);
-app.use('/api/members', membersRouter); 
-
-
-
-
-// Multer
-const storage = multer.memoryStorage();
-const upload = multer({ storage });
-
+app.use('/api/members', membersRouter);
 
 // Start server
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 8080;
 app.listen(PORT, () => {
-    console.log(`🚀 Server running on port ${PORT}`);
+  console.log(`🚀 Server running on port ${PORT}`);
 });
