@@ -17,35 +17,9 @@ const membersRouter = require('./routes/membersRoutes'); */
 // Middleware
 app.use(cors({ origin: '*' }));
 app.use(express.json());
-pool.query("SELECT 1")
-  .then(() => console.log("DB connected!"))
-  .catch(err => console.error("DB connection error:", err));
 
-app.get("/health", async (req, res) => {
-  try {
-    if (!pool) {
-      return res.status(500).json({ status: "fail", reason: "no db pool" });
-    }
 
-    await pool.query("SELECT 1");
-    res.json({ status: "ok", db: "connected" });
-  } catch (err) {
-    res.status(500).json({
-      status: "fail",
-      error: err.message
-    });
-  }
-});
 
-/* app.get("/db-test", async (req, res) => {
-  try {
-    const [rows] = await pool.query("SELECT 1 AS test");
-    res.json(rows);
-  } catch (err) {
-    console.error("DB TEST ERROR:", err);
-    res.status(500).json({ error: err.message });
-  }
-}); */
 
 // API Routes
 app.use(express.json());
