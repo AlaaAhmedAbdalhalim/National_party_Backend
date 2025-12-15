@@ -1,0 +1,49 @@
+require('dotenv').config(); 
+const express = require('express');
+const cloudinary = require("./config/cloudinary");
+const multer = require("multer");
+const dbConfig = require("./config/db");
+const pool = require("./config/db");
+
+(async () => {
+  try {
+    const conn = await pool.getConnection();
+    console.log("✅ MySQL connected successfully");
+    conn.release();
+  } catch (err) {
+    console.error("❌ MySQL connection failed:", err.message);
+  }
+})();
+
+const mysql = require('mysql2/promise');
+const cors = require("cors");
+const app = express();
+// Routes
+const eventsRouter = require('./routes/eventsRoutes');
+const newsRouter = require('./routes/newsRoutes');
+const membersRouter = require('./routes/membersRoutes');
+
+// Middleware
+app.use(cors({
+    origin:'*'
+}));
+app.use(express.json());
+
+
+app.use('/api/events', eventsRouter);
+app.use('/api/news', newsRouter);
+app.use('/api/members', membersRouter); 
+
+
+
+
+// Multer
+const storage = multer.memoryStorage();
+const upload = multer({ storage });
+
+
+// Start server
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+    console.log(`🚀 Server running on port ${PORT}`);
+});
