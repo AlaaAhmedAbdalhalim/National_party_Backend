@@ -17,10 +17,10 @@ router.get("/", async (req, res) => {
 // POST new event
 router.post("/", async (req, res) => {
   try {
-    const { Title, Description, Image, Date } = req.body;
+    const { Title, Description, Image, Date , Location } = req.body;
 
     // Validation
-    if (!Title || !Description || !Image || !Date) {
+    if (!Title || !Description || !Image || !Date || !Location) {
       return res.status(400).json({ message: "All fields are required" });
     }
 
@@ -32,9 +32,9 @@ router.post("/", async (req, res) => {
     // Insert into DB
     await db.query(
       `INSERT INTO Events 
-        (Title, Description, Image, Date)
+        (Title, Description, Image, Date ,Location)
         VALUES (?, ?, ?, ?)`,
-      [Title, Description, upload.secure_url, Date]
+      [Title, Description, upload.secure_url, Date ,Location]
     );
 
     res.status(201).json({ message: "Event added successfully" });
