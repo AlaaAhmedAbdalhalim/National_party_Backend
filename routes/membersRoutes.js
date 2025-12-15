@@ -1,27 +1,47 @@
-/* const express = require("express");
+const express = require("express");
 const router = express.Router();
 const db = require("../config/db");
 const cloudinary = require("../config/cloudinary");
 
-// GET members
+// GET all events
 router.get("/", async (req, res) => {
-  const [rows] = await db.query("SELECT * FROM Members");
-  res.json(rows);
+  try {
+    const [rows] = await db.query("SELECT * FROM Members");
+    res.status(200).json(rows);
+  } catch (error) {
+    console.error("GET Members Error:", error);
+    res.status(500).json({ message: "Failed to fetch Members" });
+  }
 });
 
-// POST member
+// POST new event
 router.post("/", async (req, res) => {
-  const { name, position, image } = req.body;
+  try {
+    const { Name, Position, Image } = req.body;
 
-  const upload = await cloudinary.uploader.upload(image);
+    // Validation
+    if (!Name || !Position || !Image ) {
+      return res.status(400).json({ message: "All fields are required" });
+    }
 
-  await db.query(
-    "INSERT INTO Members (Name, Position, Image) VALUES (?, ?, ?)",
-    [name, position, upload.secure_url]
-  );
+    // Upload image to Cloudinary
+    const upload = await cloudinary.uploader.upload(Image, {
+      folder: "members"
+    });
 
-  res.json({ message: "Member added" });
+    // Insert into DB
+    await db.query(
+      `INSERT INTO Members 
+        (Name, Position, Image)
+        VALUES (?, ?, ?)`,
+      [Name, Position,  upload.secure_url]
+    );
+
+    res.status(201).json({ message: "Member added successfully" });
+  } catch (error) {
+    console.error("POST Member Error:", error); // هيطبع كل التفاصيل
+    res.status(500).json({ message: "Failed to add member" });
+  }
 });
 
 module.exports = router;
- */
