@@ -12,14 +12,14 @@ const pool = require("./config/db");
 // Routes
 const eventsRouter = require('./routes/eventsRoutes');
 const newsRouter = require('./routes/newsRoutes');
-/*const membersRouter = require('./routes/membersRoutes'); */
+const membersRouter = require('./routes/membersRoutes'); 
 
 // Middleware
 app.use(cors({ origin: '*' }));
 app.use(express.json());
 app.use('/api/events', eventsRouter);
 app.use('/api/news', newsRouter);
-/* app.use('/api/members', membersRouter); */
+app.use('/api/members', membersRouter); 
 
 // Start server
 const PORT = process.env.MYSQLPORT || 8080; 
