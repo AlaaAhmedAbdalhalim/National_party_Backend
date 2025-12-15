@@ -49,7 +49,8 @@ app.use('/api/events', eventsRouter);
 app.use('/api/members', membersRouter); */
 
 // Start server
-const PORT = process.env.PORT || 8080;
-app.listen(PORT, () => {
-  console.log(`🚀 Server running on port ${PORT}`);
+const PORT = process.env.PORT || 3000; // 3000 للتجربة محليًا فقط
+app.listen(PORT, "0.0.0.0", () => {
+  console.log(`Server running on port ${PORT}`);
 });
+
