@@ -11,8 +11,8 @@ const pool = require("./config/db");
 
 // Routes
 const eventsRouter = require('./routes/eventsRoutes');
-const newsRouter = require('./routes/newsRoutes');
-const membersRouter = require('./routes/membersRoutes');
+/* const newsRouter = require('./routes/newsRoutes');
+const membersRouter = require('./routes/membersRoutes'); */
 
 // Middleware
 app.use(cors({ origin: '*' }));
@@ -33,7 +33,7 @@ app.get("/health", async (req, res) => {
   }
 });
 
-app.get("/db-test", async (req, res) => {
+/* app.get("/db-test", async (req, res) => {
   try {
     const [rows] = await pool.query("SELECT 1 AS test");
     res.json(rows);
@@ -41,12 +41,12 @@ app.get("/db-test", async (req, res) => {
     console.error("DB TEST ERROR:", err);
     res.status(500).json({ error: err.message });
   }
-});
+}); */
 
 // API Routes
 app.use('/api/events', eventsRouter);
-app.use('/api/news', newsRouter);
-app.use('/api/members', membersRouter);
+/* app.use('/api/news', newsRouter);
+app.use('/api/members', membersRouter); */
 
 // Start server
 const PORT = process.env.PORT || 8080;
