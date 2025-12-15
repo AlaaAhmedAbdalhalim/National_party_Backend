@@ -17,29 +17,29 @@ router.get("/", async (req, res) => {
 // POST new event
 router.post("/", async (req, res) => {
   try {
-    const { title, description, image, date } = req.body;
+    const { Title, Description, Image, Date } = req.body;
 
     // Validation
-    if (!title || !description || !image || !date) {
+    if (!Title || !Description || !Image || !Date) {
       return res.status(400).json({ message: "All fields are required" });
     }
 
     // Upload image to Cloudinary
-    const upload = await cloudinary.uploader.upload(image, {
+    const upload = await cloudinary.uploader.upload(Image, {
       folder: "events"
     });
 
     // Insert into DB
     await db.query(
       `INSERT INTO Events 
-       (Title, Description, Image, Date)
-       VALUES (?, ?, ?, ?)`,
-      [title, description, upload.secure_url, date]
+        (Title, Description, Image, Date)
+        VALUES (?, ?, ?, ?)`,
+      [Title, Description, upload.secure_url, Date]
     );
 
     res.status(201).json({ message: "Event added successfully" });
   } catch (error) {
-    console.error("POST Event Error:", error);
+    console.error("POST Event Error:", error); // هيطبع كل التفاصيل
     res.status(500).json({ message: "Failed to add event" });
   }
 });

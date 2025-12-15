@@ -44,6 +44,7 @@ app.get("/health", async (req, res) => {
 }); */
 
 // API Routes
+app.use(express.json());
 app.use('/api/events', eventsRouter);
 /* app.use('/api/news', newsRouter);
 app.use('/api/members', membersRouter); */
