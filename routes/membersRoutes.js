@@ -45,7 +45,23 @@ router.post("/", async (req, res) => {
     res.status(500).json({ message: "Failed to add member" });
   }
 });
-router.delete('/members/:id', auth, isAdmin, (req, res) => {
-  // req.user.role موجودة
+router.delete('/members/:id', auth, isAdmin, async (req, res) => {
+  const memberId = req.params.id;
+
+  try {
+    const [rows] = await db.query('SELECT * FROM Members WHERE id = ?', [memberId]);
+
+    if (rows.length === 0) {
+      return res.status(404).json({ message: 'Member not found' });
+    }
+
+    await db.query('DELETE FROM Members WHERE id = ?', [memberId]);
+
+    res.status(200).json({ message: 'Member deleted successfully' });
+  } catch (error) {
+    console.error('Delete member error:', error);
+    res.status(500).json({ message: 'Server error', error: error.toString() });
+  }
 });
+
 module.exports = router;
