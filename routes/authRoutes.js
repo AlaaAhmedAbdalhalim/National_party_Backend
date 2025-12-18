@@ -8,15 +8,20 @@ const router = express.Router();
 router.post('/login', async (req, res) => {
   const { Email, Password } = req.body;
 
-  if (!Email || !Password) {
-    return res.status(400).json({ message: 'Email and Password are required' });
-  }
-
   try {
+    console.log('Login body:', req.body);
+
+    if (!Email || !Password) {
+      return res.status(400).json({ message: 'Email and Password are required' });
+    }
+
+    // جلب المستخدم من DB
     const [rows] = await db.query(
       'SELECT * FROM Users WHERE Email = ?',
       [Email]
     );
+
+    console.log('DB rows:', rows);
 
     if (rows.length === 0) {
       console.log(`Login failed: Email not found -> ${Email}`);
@@ -25,14 +30,18 @@ router.post('/login', async (req, res) => {
 
     const user = rows[0];
 
-    // مقارنة Password
+    if (!user.Password) {
+      console.log('Password is null in DB for this user');
+      return res.status(500).json({ message: 'Password not set for this user' });
+    }
+
     let isMatch = false;
 
     // لو Password مخزن hashed
     if (user.Password.startsWith('$2b$')) {
       isMatch = await bcrypt.compare(Password, user.Password);
     } else {
-      // Password plain text (لتجربة سريعة)
+      // Password plain text لتجربة سريعة
       isMatch = Password === user.Password;
     }
 
@@ -41,11 +50,13 @@ router.post('/login', async (req, res) => {
       return res.status(401).json({ message: 'Invalid email or password' });
     }
 
+    if (!process.env.JWT_SECRET) {
+      console.log('JWT_SECRET not defined in env');
+      return res.status(500).json({ message: 'Server configuration error' });
+    }
+
     const token = jwt.sign(
-      {
-        id: user.id,
-        role: user.Role
-      },
+      { id: user.id, role: user.Role },
       process.env.JWT_SECRET,
       { expiresIn: '1d' }
     );
@@ -63,7 +74,7 @@ router.post('/login', async (req, res) => {
 
   } catch (error) {
     console.error('Server error:', error);
-    res.status(500).json({ message: 'Server error', error });
+    res.status(500).json({ message: 'Server error', error: error.toString() });
   }
 });
 
