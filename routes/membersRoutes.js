@@ -45,7 +45,7 @@ router.post("/", async (req, res) => {
     res.status(500).json({ message: "Failed to add member" });
   }
 });
-router.delete('/members/:id', auth, isAdmin, async (req, res) => {
+router.delete('/:id', auth, isAdmin, async (req, res) => {
   const memberId = req.params.id;
 
   try {
