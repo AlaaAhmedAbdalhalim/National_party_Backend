@@ -2,6 +2,8 @@ const express = require("express");
 const router = express.Router();
 const db = require("../config/db");
 const cloudinary = require("../config/cloudinary");
+const auth = require('../middleware/auth');
+const isAdmin = require('../middleware/isAdmin');
 
 // GET all events
 router.get("/", async (req, res) => {
@@ -43,5 +45,7 @@ router.post("/", async (req, res) => {
     res.status(500).json({ message: "Failed to add member" });
   }
 });
-
+router.delete('/members/:id', auth, isAdmin, (req, res) => {
+  // req.user.role موجودة
+});
 module.exports = router;
