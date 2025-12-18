@@ -47,48 +47,33 @@ router.post("/", async (req, res) => {
 });
 
 router.put('/:id', auth, isAdmin, async (req, res) => {
-  const memberId = parseInt(req.params.id, 10);
-
-  if (isNaN(memberId)) {
-    return res.status(400).json({ message: 'Invalid member ID' });
-  }
-
+  const memberId = req.params.id;
   const { Name, Position, Image } = req.body;
 
-  if (!Name || !Position) {
-    return res.status(400).json({ message: 'Name and Position are required' });
-  }
-
   try {
-    // تحقق إن العضو موجود
     const [rows] = await db.query('SELECT * FROM Members WHERE id = ?', [memberId]);
-
     if (rows.length === 0) {
       return res.status(404).json({ message: 'Member not found' });
     }
 
-    let imageUrl = rows[0].Image; // الصورة الحالية
+    let imageUrl = rows[0].Image; // Default old image
 
-    // لو فيه صورة جديدة، نحذف القديمة ونرفع الجديدة
-    if (Image) {
-      // استخراج الـ public_id من رابط Cloudinary الحالي
-      const publicIdMatch = imageUrl.match(/members\/([^\.]+)/);
-      if (publicIdMatch) {
-        await cloudinary.uploader.destroy(`members/${publicIdMatch[1]}`);
-      }
-
-      // رفع الصورة الجديدة
-      const upload = await cloudinary.uploader.upload(Image, { folder: 'members' });
+    // لو صورة جديدة مرفوعة Base64
+    if (Image && Image.startsWith('data:image')) {
+      // رفع على Cloudinary
+      const upload = await cloudinary.uploader.upload(Image, {
+        folder: 'members'
+      });
       imageUrl = upload.secure_url;
     }
 
-    // تحديث البيانات في قاعدة البيانات
+    // تحديث DB
     await db.query(
       'UPDATE Members SET Name = ?, Position = ?, Image = ? WHERE id = ?',
       [Name, Position, imageUrl, memberId]
     );
 
-    res.status(200).json({ message: 'Member updated successfully', updatedMember: { id: memberId, Name, Position, Image: imageUrl } });
+    res.status(200).json({ message: 'Member updated successfully' });
   } catch (error) {
     console.error('Update member error:', error);
     res.status(500).json({ message: 'Server error', error: error.toString() });
