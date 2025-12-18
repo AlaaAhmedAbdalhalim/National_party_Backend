@@ -67,21 +67,28 @@ router.put('/:id', auth, isAdmin, async (req, res) => {
       return res.status(404).json({ message: 'Member not found' });
     }
 
-    let imageUrl = rows[0].Image; // لو ما فيش صورة جديدة، نخلي القديمة
+    let imageUrl = rows[0].Image; // الصورة الحالية
 
-    // لو فيه صورة جديدة، نرفعها على Cloudinary
+    // لو فيه صورة جديدة، نحذف القديمة ونرفع الجديدة
     if (Image) {
+      // استخراج الـ public_id من رابط Cloudinary الحالي
+      const publicIdMatch = imageUrl.match(/members\/([^\.]+)/);
+      if (publicIdMatch) {
+        await cloudinary.uploader.destroy(`members/${publicIdMatch[1]}`);
+      }
+
+      // رفع الصورة الجديدة
       const upload = await cloudinary.uploader.upload(Image, { folder: 'members' });
       imageUrl = upload.secure_url;
     }
 
-    // تحديث البيانات
+    // تحديث البيانات في قاعدة البيانات
     await db.query(
       'UPDATE Members SET Name = ?, Position = ?, Image = ? WHERE id = ?',
       [Name, Position, imageUrl, memberId]
     );
 
-    res.status(200).json({ message: 'Member updated successfully' });
+    res.status(200).json({ message: 'Member updated successfully', updatedMember: { id: memberId, Name, Position, Image: imageUrl } });
   } catch (error) {
     console.error('Update member error:', error);
     res.status(500).json({ message: 'Server error', error: error.toString() });
