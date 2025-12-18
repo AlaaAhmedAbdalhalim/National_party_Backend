@@ -45,6 +45,51 @@ router.post("/", async (req, res) => {
     res.status(500).json({ message: "Failed to add member" });
   }
 });
+
+router.put('/:id', auth, isAdmin, async (req, res) => {
+  const memberId = parseInt(req.params.id, 10);
+
+  if (isNaN(memberId)) {
+    return res.status(400).json({ message: 'Invalid member ID' });
+  }
+
+  const { Name, Position, Image } = req.body;
+
+  if (!Name || !Position) {
+    return res.status(400).json({ message: 'Name and Position are required' });
+  }
+
+  try {
+    // تحقق إن العضو موجود
+    const [rows] = await db.query('SELECT * FROM Members WHERE id = ?', [memberId]);
+
+    if (rows.length === 0) {
+      return res.status(404).json({ message: 'Member not found' });
+    }
+
+    let imageUrl = rows[0].Image; // لو ما فيش صورة جديدة، نخلي القديمة
+
+    // لو فيه صورة جديدة، نرفعها على Cloudinary
+    if (Image) {
+      const upload = await cloudinary.uploader.upload(Image, { folder: 'members' });
+      imageUrl = upload.secure_url;
+    }
+
+    // تحديث البيانات
+    await db.query(
+      'UPDATE Members SET Name = ?, Position = ?, Image = ? WHERE id = ?',
+      [Name, Position, imageUrl, memberId]
+    );
+
+    res.status(200).json({ message: 'Member updated successfully' });
+  } catch (error) {
+    console.error('Update member error:', error);
+    res.status(500).json({ message: 'Server error', error: error.toString() });
+  }
+});
+
+
+
 router.delete('/:id', auth, isAdmin, async (req, res) => {
   const memberId = req.params.id;
 
