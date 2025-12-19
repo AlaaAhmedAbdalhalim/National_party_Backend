@@ -1,80 +1,106 @@
 const express = require('express');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
-const db = require('../config/db'); // connection mysql
+const db = require('../config/db');
 
 const router = express.Router();
 
+/**
+ * POST /api/auth/login
+ * Body:
+ * {
+ *   "email": "admin@test.com",
+ *   "password": "123456"
+ * }
+ */
 router.post('/login', async (req, res) => {
-  const { Email, Password } = req.body;
-
   try {
-    console.log('Login body:', req.body);
+    console.log('LOGIN BODY =>', req.body);
 
-    if (!Email || !Password) {
-      return res.status(400).json({ message: 'Email and Password are required' });
+    // ⬅️ نستقبل lowercase من الفرونت
+    const { email, password } = req.body;
+
+    // Validation
+    if (!email || !password) {
+      return res.status(400).json({
+        message: 'Email and password are required'
+      });
     }
 
-    // جلب المستخدم من DB
+    // Get user from DB
     const [rows] = await db.query(
       'SELECT * FROM Users WHERE Email = ?',
-      [Email]
+      [email]
     );
 
-    console.log('DB rows:', rows);
-
     if (rows.length === 0) {
-      console.log(`Login failed: Email not found -> ${Email}`);
-      return res.status(401).json({ message: 'Invalid email or password' });
+      console.log('LOGIN FAIL: EMAIL NOT FOUND');
+      return res.status(401).json({
+        message: 'Invalid email or password'
+      });
     }
 
     const user = rows[0];
 
     if (!user.Password) {
-      console.log('Password is null in DB for this user');
-      return res.status(500).json({ message: 'Password not set for this user' });
+      console.log('LOGIN FAIL: PASSWORD NULL');
+      return res.status(500).json({
+        message: 'Password not set for this user'
+      });
     }
 
     let isMatch = false;
 
-    // لو Password مخزن hashed
-    if (user.Password.startsWith('$2b$')) {
-      isMatch = await bcrypt.compare(Password, user.Password);
+    // 🔐 لو الباسورد متخزن bcrypt
+    if (user.Password.startsWith('$2')) {
+      isMatch = await bcrypt.compare(password, user.Password);
     } else {
-      // Password plain text لتجربة سريعة
-      isMatch = Password === user.Password;
+      // ⚠️ plain text (للتجربة فقط)
+      isMatch = password === user.Password;
     }
 
     if (!isMatch) {
-      console.log(`Login failed: Wrong password for ${Email}`);
-      return res.status(401).json({ message: 'Invalid email or password' });
+      console.log('LOGIN FAIL: WRONG PASSWORD');
+      return res.status(401).json({
+        message: 'Invalid email or password'
+      });
     }
 
     if (!process.env.JWT_SECRET) {
-      console.log('JWT_SECRET not defined in env');
-      return res.status(500).json({ message: 'Server configuration error' });
+      console.error('JWT_SECRET NOT DEFINED');
+      return res.status(500).json({
+        message: 'Server configuration error'
+      });
     }
 
+    // Generate token
     const token = jwt.sign(
-      { id: user.id, role: user.Role },
+      {
+        id: user.id,
+        role: user.Role
+      },
       process.env.JWT_SECRET,
       { expiresIn: '1d' }
     );
 
-    res.json({
+    // Success
+    res.status(200).json({
       message: 'Login success',
       token,
       user: {
         id: user.id,
-        Name: user.Name,
-        Email: user.Email,
-        Role: user.Role
+        name: user.Name,
+        email: user.Email,
+        role: user.Role
       }
     });
 
   } catch (error) {
-    console.error('Server error:', error);
-    res.status(500).json({ message: 'Server error', error: error.toString() });
+    console.error('LOGIN SERVER ERROR:', error);
+    res.status(500).json({
+      message: 'Server error',
+      error: error.toString()
+    });
   }
 });
 
