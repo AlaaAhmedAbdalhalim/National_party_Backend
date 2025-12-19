@@ -15,21 +15,22 @@ const router = express.Router();
  */
 router.post('/login', async (req, res) => {
   try {
-    console.log('LOGIN BODY =>', req.body);
+    console.log('LOGIN BODY:', req.body);
 
-    // ⬅️ نستقبل lowercase من الفرونت
-    const { email, password } = req.body;
+    // 🔹 ناخد lowercase + نشيل المسافات
+    const email = req.body.email?.trim().toLowerCase();
+    const password = req.body.password?.trim();
 
-    // Validation
+    // 🔸 Validation
     if (!email || !password) {
       return res.status(400).json({
         message: 'Email and password are required'
       });
     }
 
-    // Get user from DB
+    // 🔹 نجيب المستخدم (case insensitive)
     const [rows] = await db.query(
-      'SELECT * FROM Users WHERE Email = ?',
+      'SELECT * FROM Users WHERE LOWER(Email) = ?',
       [email]
     );
 
@@ -43,7 +44,7 @@ router.post('/login', async (req, res) => {
     const user = rows[0];
 
     if (!user.Password) {
-      console.log('LOGIN FAIL: PASSWORD NULL');
+      console.log('LOGIN FAIL: PASSWORD IS NULL');
       return res.status(500).json({
         message: 'Password not set for this user'
       });
@@ -51,12 +52,12 @@ router.post('/login', async (req, res) => {
 
     let isMatch = false;
 
-    // 🔐 لو الباسورد متخزن bcrypt
+    // 🔐 لو الباسورد متشفر bcrypt
     if (user.Password.startsWith('$2')) {
       isMatch = await bcrypt.compare(password, user.Password);
     } else {
-      // ⚠️ plain text (للتجربة فقط)
-      isMatch = password === user.Password;
+      // ⚠️ Plain text (زي حالتك)
+      isMatch = password === user.Password.trim();
     }
 
     if (!isMatch) {
@@ -67,13 +68,13 @@ router.post('/login', async (req, res) => {
     }
 
     if (!process.env.JWT_SECRET) {
-      console.error('JWT_SECRET NOT DEFINED');
+      console.log('JWT_SECRET NOT FOUND');
       return res.status(500).json({
         message: 'Server configuration error'
       });
     }
 
-    // Generate token
+    // 🔑 Generate JWT
     const token = jwt.sign(
       {
         id: user.id,
@@ -83,7 +84,7 @@ router.post('/login', async (req, res) => {
       { expiresIn: '1d' }
     );
 
-    // Success
+    // ✅ Success
     res.status(200).json({
       message: 'Login success',
       token,
