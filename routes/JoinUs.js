@@ -16,35 +16,7 @@ router.get("/", async (req, res) => {
   }
 });
 
-// POST new event
-router.post("/", async (req, res) => {
-  try {
-    const { Name, Position, Image } = req.body;
-
-    // Validation
-    if (!Name || !Position || !Image ) {
-      return res.status(400).json({ message: "All fields are required" });
-    }
-
-    // Upload image to Cloudinary
-    const upload = await cloudinary.uploader.upload(Image, {
-      folder: "members"
-    });
-
-    // Insert into DB
-    await db.query(
-      `INSERT INTO Members 
-        (Name, Position, Image)
-        VALUES (?, ?, ?)`,
-      [Name, Position,  upload.secure_url]
-    );
-
-    res.status(201).json({ message: "Member added successfully" });
-  } catch (error) {
-    console.error("POST Member Error:", error); // هيطبع كل التفاصيل
-    res.status(500).json({ message: "Failed to add member" });
-  }
-});// POST new member
+// POST new member
 router.post("/", async (req, res) => {
   try {
     // 🌟 أضيفي console.log هنا عشان تشوفي كل الحقول اللي جايه
@@ -116,7 +88,7 @@ if (!FullName || !BirthDate || !Gender || !MaritalStatus || !Address || !PartyUn
 
     // Insert into DB
     const query = `
-      INSERT INTO members 
+      INSERT INTO JoinUS 
       (FullName, BirthDate, Gender, MaritalStatus, Address, PartyUnit, Governorate, District, Phone, Email, NationalId, IdExpiryDate,
        IdFrontImage, IdBackImage, PersonalPhoto, EducationLevel, HigherDegree, JobTitle, JobAddress, WorkPlace, PreviousParty, ParliamentMember, UnionMembership, Awards)
       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
