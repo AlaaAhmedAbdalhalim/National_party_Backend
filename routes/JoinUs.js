@@ -16,7 +16,6 @@ router.get("/", async (req, res) => {
   }
 });
 
-// POST new member
 router.post("/", async (req, res) => {
   try {
     // 🌟 أضيفي console.log هنا عشان تشوفي كل الحقول اللي جايه
@@ -51,40 +50,18 @@ router.post("/", async (req, res) => {
     console.log("=== REQUEST BODY ===");
 console.log(req.body);
 
-console.log("FullName:", req.body.FullName);
-console.log("BirthDate:", req.body.BirthDate);
-console.log("Gender:", req.body.Gender);
-console.log("MaritalStatus:", req.body.MaritalStatus);
-console.log("Address:", req.body.Address);
-console.log("PartyUnit:", req.body.PartyUnit);
-console.log("Governorate:", req.body.Governorate);
-console.log("District:", req.body.District);
-console.log("Phone:", req.body.Phone);
-console.log("Email:", req.body.Email);
-console.log("NationalId:", req.body.NationalId);
-console.log("IdExpiryDate:", req.body.IdExpiryDate);
-console.log("IdFrontImage:", req.body.IdFrontImage);
-console.log("IdBackImage:", req.body.IdBackImage);
-console.log("PersonalPhoto:", req.body.PersonalPhoto);
-console.log("EducationLevel:", req.body.EducationLevel);
-console.log("HigherDegree:", req.body.HigherDegree);
-console.log("JobTitle:", req.body.JobTitle);
-console.log("JobAddress:", req.body.JobAddress);
-console.log("WorkPlace:", req.body.WorkPlace);
-console.log("PreviousParty:", req.body.PreviousParty);
-console.log("ParliamentMember:", req.body.ParliamentMember);
-console.log("UnionMembership:", req.body.UnionMembership);
-console.log("Awards:", req.body.Awards);
     // Validation
 if (!FullName || !BirthDate || !Gender || !MaritalStatus || !Address || !PartyUnit || !Governorate || !District || !Phone || !Email || !NationalId || !IdExpiryDate || !IdFrontImage || !IdBackImage || !PersonalPhoto || !EducationLevel || !JobTitle) {
       return res.status(400).json({ message: "All required fields must be filled" });
     }
+// Upload Front ID
+const idFrontUpload = await cloudinary.uploader.upload(IdFrontImage, { folder: "JoinUs/idFront" });
 
-    const [idFrontUpload, idBackUpload, personalPhotoUpload] = await Promise.all([
-      cloudinary.uploader.upload(IdFrontImage, { folder: "members/idFront" }),
-      cloudinary.uploader.upload(IdBackImage, { folder: "members/idBack" }),
-      cloudinary.uploader.upload(PersonalPhoto, { folder: "members/personalPhoto" })
-    ]);
+// Upload Back ID
+const idBackUpload = await cloudinary.uploader.upload(IdBackImage, { folder: "JoinUs/idBack" });
+
+// Upload Personal Photo
+const personalPhotoUpload = await cloudinary.uploader.upload(PersonalPhoto, { folder: "JoinUs/personalPhoto" });
 
     // Insert into DB
     const query = `
