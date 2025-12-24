@@ -65,7 +65,7 @@ const personalPhotoUpload = await cloudinary.uploader.upload(PersonalPhoto, { fo
 
     // Insert into DB
     const query = `
-      INSERT INTO JoinUS 
+      INSERT INTO JoinUs
       (FullName, BirthDate, Gender, MaritalStatus, Address, PartyUnit, Governorate, District, Phone, Email, NationalId, IdExpiryDate,
        IdFrontImage, IdBackImage, PersonalPhoto, EducationLevel, HigherDegree, JobTitle, JobAddress, WorkPlace, PreviousParty, ParliamentMember, UnionMembership, Awards)
       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
