@@ -14,6 +14,7 @@ const eventsRouter = require('./routes/eventsRoutes');
 const newsRouter = require('./routes/newsRoutes');
 const membersRouter = require('./routes/membersRoutes'); 
 const MessagesRouter = require('./routes/ContactMessages'); 
+const JoinUsRouter = require('./routes/JoinUs'); 
 
 // Middleware
 app.use(cors({ origin: '*' }));
@@ -23,6 +24,7 @@ app.use('/api/news', newsRouter);
 app.use('/api/members', membersRouter); 
 app.use('/api/auth', authRoutes);
 app.use('/api/messages', MessagesRouter);
+app.use('/api/joinUs', JoinUsRouter);
 // Start server
 const PORT = process.env.MYSQLPORT || 8080; 
 app.listen(PORT, "0.0.0.0", () => {
