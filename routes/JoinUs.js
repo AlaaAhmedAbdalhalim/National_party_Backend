@@ -76,31 +76,10 @@ router.post("/", async (req, res) => {
       UnionMembership,
       Awards
     } = req.body;
-
-    // Validation: تأكدي كل الحقول المطلوبة موجودة
-    if (
-      !FullName ||
-      !BirthDate ||
-      !Gender ||
-      !MaritalStatus ||
-      !Address ||
-      !PartyUnit ||
-      !Governorate ||
-      !District ||
-      !Phone ||
-      !Email ||
-      !NationalId ||
-      !IdExpiryDate ||
-      !IdFrontImage ||
-      !IdBackImage ||
-      !PersonalPhoto ||
-      !EducationLevel ||
-      !JobTitle
-    ) {
+if (!FullName || !BirthDate || !Gender || !MaritalStatus || !Address || !PartyUnit || !Governorate || !District || !Phone || !Email || !NationalId || !IdExpiryDate || !IdFrontImage || !IdBackImage || !PersonalPhoto || !EducationLevel || !JobTitle) {
       return res.status(400).json({ message: "All required fields must be filled" });
     }
 
-    // 🌐 Upload الصور إلى Cloudinary (مثال: لو صور URLs جاهزة، ممكن تتخطى upload)
     const [idFrontUpload, idBackUpload, personalPhotoUpload] = await Promise.all([
       cloudinary.uploader.upload(IdFrontImage, { folder: "members/idFront" }),
       cloudinary.uploader.upload(IdBackImage, { folder: "members/idBack" }),
