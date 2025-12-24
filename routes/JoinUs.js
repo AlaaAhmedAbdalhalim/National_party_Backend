@@ -44,10 +44,12 @@ router.post("/", async (req, res) => {
     console.error("POST Member Error:", error); // هيطبع كل التفاصيل
     res.status(500).json({ message: "Failed to add member" });
   }
-});
-// POST new member
+});// POST new member
 router.post("/", async (req, res) => {
   try {
+    // 🌟 أضيفي console.log هنا عشان تشوفي كل الحقول اللي جايه
+    console.log("Request Body:", req.body);
+
     const {
       FullName,
       BirthDate,
@@ -98,7 +100,7 @@ router.post("/", async (req, res) => {
       return res.status(400).json({ message: "All required fields must be filled" });
     }
 
-    // Upload الصور إلى Cloudinary
+    // 🌐 Upload الصور إلى Cloudinary (مثال: لو صور URLs جاهزة، ممكن تتخطى upload)
     const [idFrontUpload, idBackUpload, personalPhotoUpload] = await Promise.all([
       cloudinary.uploader.upload(IdFrontImage, { folder: "members/idFront" }),
       cloudinary.uploader.upload(IdBackImage, { folder: "members/idBack" }),
@@ -141,7 +143,6 @@ router.post("/", async (req, res) => {
     ];
 
     await db.query(query, values);
-console.log(req.body);
 
     res.status(201).json({ message: "joinUs Form added successfully" });
 
@@ -150,6 +151,7 @@ console.log(req.body);
     res.status(500).json({ message: "Failed to add joinUs Form" });
   }
 });
+
 
 /* 
 router.put('/:id', auth, isAdmin, async (req, res) => {
