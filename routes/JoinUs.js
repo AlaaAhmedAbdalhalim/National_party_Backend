@@ -141,6 +141,7 @@ router.post("/", async (req, res) => {
     ];
 
     await db.query(query, values);
+console.log(req.body);
 
     res.status(201).json({ message: "joinUs Form added successfully" });
 
