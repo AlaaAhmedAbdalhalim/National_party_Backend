@@ -18,7 +18,8 @@ const JoinUsRouter = require('./routes/JoinUs');
 
 // Middleware
 app.use(cors({ origin: '*' }));
-app.use(express.json());
+app.use(express.json({ limit: '10mb' }));
+app.use(express.urlencoded({ limit: '10mb', extended: true }));
 app.use('/api/events', eventsRouter);
 app.use('/api/news', newsRouter);
 app.use('/api/members', membersRouter); 
